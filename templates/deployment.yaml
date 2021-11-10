@@ -10,7 +10,6 @@ metadata:
     heritage: {{ .Release.Service }}
     role: beacon
 spec:
-  serviceName: {{ template "beacon.fullname" . }}
   selector:
     matchLabels:
       app: {{ template "beacon.fullname" . }}
@@ -27,12 +26,10 @@ spec:
 {{- toYaml .Values.podAnnotations | nindent 8 -}}
 {{- end }}
     spec:
-    {{- if .Values.rbacEnabled}}
-      serviceAccountName: {{ .Release.Name }}
-    {{- end }}
+      serviceAccountName: {{ ternary .Release.Name .Values.security.serviceAccountName (empty .Values.security.serviceAccountName) }}
       securityContext:
         runAsUser: {{ .Values.security.RunAsUser }}
-        fsGroup: {{ .Values.security.FsGroup }}
+        fsGroup: {{ .Values.security.fsGroup }}
       containers:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
@@ -64,7 +61,7 @@ spec:
               value: {{ include "beacon.configPath" . }}public.key
             {{- end }}
             - name: DEBUG
-              value: {{ .Values.config.debug }}
+              value: {{ .Values.config.debug | quote }}
           ports:
             - containerPort: 8080
               name: beacon-ui
@@ -95,4 +92,3 @@ spec:
         - name: beacon-config
           configMap:
             name: {{ template "beacon.fullname" . }}-config
-            key: config.ini

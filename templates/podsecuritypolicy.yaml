@@ -1,4 +1,4 @@
-{{- if and .Values.rbacEnabled .Values.securityPolicy.create }}
+{{- if and (not .Values.security.serviceAccountName) .Values.security.createPolicy }}
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
