@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "beacon.fullname" . }}
+  labels:
+    app: {{ template "beacon.fullname" . }}
+spec:
+  ports:
+    - name: beacon-ui
+      port: {{ .Values.service.port }}
+      targetPort: beacon-ui
+      protocol: TCP
+  selector:
+    app: {{ template "beacon.fullname" . }}

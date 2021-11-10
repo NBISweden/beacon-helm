@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "beacon.fullname" . }}-config
+data:
+{{- range  $val := toStrings .Values.config.ini }}
+  config.ini: |-
+{{ $val | indent 4}}
+{{- end }}
+{{- if .Values.config.publicKey.data }}
+{{- range  $val := toStrings .Values.config.publicKey.data }}
+  public.key: |-
+{{ $val | indent 4}}
+{{- end }}
+{{- end }}

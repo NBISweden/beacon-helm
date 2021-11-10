@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "beacon.fullname" . }}
+  labels:
+    app: {{ template "beacon.fullname" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: {{ template "beacon.fullname" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    role: beacon
+spec:
+  serviceName: {{ template "beacon.fullname" . }}
+  selector:
+    matchLabels:
+      app: {{ template "beacon.fullname" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "beacon.fullname" . }}
+        role: beacon
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+{{- if .Values.podAnnotations }}
+{{- toYaml .Values.podAnnotations | nindent 8 -}}
+{{- end }}
+    spec:
+    {{- if .Values.rbacEnabled}}
+      serviceAccountName: {{ .Release.Name }}
+    {{- end }}
+      securityContext:
+        runAsUser: {{ .Values.security.RunAsUser }}
+        fsGroup: {{ .Values.security.FsGroup }}
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+          name: beacon
+          env:
+            - name: CONFIG_FILE
+              value: {{ include "beacon.configPath" . }}config.ini
+            - name: DATABASE_NAME
+              value: {{ required "A .Values.database.name entry is required!" .Values.externalDatabase.name | quote }}
+            - name: DATABASE_USER
+              value: {{ required "A .Values.database.user entry is required!" .Values.externalDatabase.user | quote }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "beacon.fullname" . }}
+                  key: databasePasswd
+            - name: DATABASE_URL
+              value: {{ required "A .Values.database.host entry is required!" .Values.externalDatabase.host | quote }}
+            - name: DATABASE_PORT
+              value: {{ .Values.externalDatabase.port | quote }}
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8080"
+            {{- if .Values.config.publicKey.data }}
+            - name: PUBLIC_KEY
+              value: {{ include "beacon.configPath" . }}public.key
+            {{- end }}
+            - name: DEBUG
+              value: {{ .Values.config.debug }}
+          ports:
+            - containerPort: 8080
+              name: beacon-ui
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /files
+              name: data
+            - mountPath: /tmp
+              name: temp
+            - name: beacon-config
+              mountPath: {{ include "beacon.configPath" . }}
+      volumes:
+        - name: data
+      {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+          {{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+          {{- else }}
+            claimName: {{ include "beacon.fullname" . }}
+          {{- end }}
+      {{- else }}
+          emptyDir:
+            sizeLimit: 1Gi
+      {{- end }}
+        - name: temp
+          emptyDir: 
+            sizeLimit: 1Gi
+        - name: beacon-config
+          configMap:
+            name: {{ template "beacon.fullname" . }}-config
+            key: config.ini
