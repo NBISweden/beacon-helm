@@ -1,6 +1,7 @@
 apiVersion: v2
 name: beacon
 version: 0.0.1
+appVersion: 1.8.0
 description: Python-based Beacon API Web Server
 home: https://beacon-python.readthedocs.io
 icon: https://nbis.se/assets/img/logos/nbislogo-green.svg
