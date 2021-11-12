@@ -71,6 +71,27 @@ helm install my-release nbis/beacon
 | `security.RunAsUser`          | Set the Beacon pod's Security Context runAsUser | `1000`  |
 | `security.serviceAccountName` | name of an existing ServiceAccount to use       | `""`    |
 
+### PostgreSQL Parameters
+
+| Name                                                         | Description                                                                                                            | Value         |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ------------- |
+| `postgresql.enabled`                                         | Deploy a PostgreSQL server                                                                                             | `true`        |
+| `postgresql.postgresqlUsername`                              | PostgreSQL user (has superuser privileges if username is postgres)                                                     | `beacon`      |
+| `postgresql.postgresqlPassword`                              | PostgreSQL user password                                                                                               | `""`          |
+| `postgresql.postgresqlPostgresPassword`                      | PostgreSQL admin password (used when postgresqlUsername is not postgres, in which case postgres is the admin username) | `""`          |
+| `postgresql.existingSecret`                                  | Name of existing secret to use for PostgreSQL passwords                                                                | `""`          |
+| `postgresql.postgresqlDatabase`                              | PostgreSQL database                                                                                                    | `beacon`      |
+| `postgresql.persistence.enabled`                             | Enable persistence using PVC                                                                                           | `true`        |
+| `postgresql.persistence.storageClass`                        | PVC Storage Class for PostgreSQL volume                                                                                | `""`          |
+| `postgresql.persistence.size`                                | PVC Storage Request for PostgreSQL volume                                                                              | `8Gi`         |
+| `postgresql.initdbScripts`                                   | Dictionary of initdb scripts                                                                                           | `""`          |
+| `postgresql.initdbScriptsConfigMap`                          | ConfigMap with scripts to set up the beacon database, will be run at first boot,                                       | `init-cripts` |
+| `postgresql.serviceAccount.enabled`                          | Enable service account                                                                                                 | `true`        |
+| `postgresql.psp.create`                                      | Whether to create a PodSecurityPolicy.                                                                                 | `true`        |
+| `postgresql.rbac.create`                                     | Create Role and RoleBinding (required for PSP to work)                                                                 | `true`        |
+| `postgresql.containerSecurityContext.enabled`                | Enable container security context                                                                                      | `true`        |
+| `postgresql.containerSecurityContext.readOnlyRootFilesystem` | Enable writeable root filesystem, needed if the default policy is restricted.                                          | `false`       |
+
 Specify each parameter using the --set key=value[,key=value] argument to helm install. For example,
 
 ```console
