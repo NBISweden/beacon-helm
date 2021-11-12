@@ -40,18 +40,18 @@ spec:
             - name: CONFIG_FILE
               value: {{ include "beacon.configPath" . }}config.ini
             - name: DATABASE_NAME
-              value: {{ required "A .Values.database.name entry is required!" .Values.externalDatabase.name | quote }}
+              value: {{ include "beacon.databaseName" . | quote }}
             - name: DATABASE_USER
-              value: {{ required "A .Values.database.user entry is required!" .Values.externalDatabase.user | quote }}
+              value: {{ include "beacon.databaseUser" . | quote }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "beacon.fullname" . }}
-                  key: databasePasswd
+                  name: {{ include "beacon.databaseSecretName" . }}
+                  key: postgresql-password
             - name: DATABASE_URL
-              value: {{ required "A .Values.database.host entry is required!" .Values.externalDatabase.host | quote }}
+              value: {{ include "beacon.databaseHost" . | quote }}
             - name: DATABASE_PORT
-              value: {{ .Values.externalDatabase.port | quote }}
+              value: {{ include "beacon.databasePort" . | quote }}
             - name: HOST
               value: "0.0.0.0"
             - name: PORT

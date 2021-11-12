@@ -33,3 +33,50 @@ Create chart name and version as used by the chart label.
 {{- define "beacon.configPath" -}}
     {{- ternary "/app/conf/" .Values.config.path (empty .Values.config.path) -}}
 {{- end -}}
+
+{{- define "beacon.databaseSecretName" -}}
+{{- if .Values.postgresql.enabled }}
+    {{- if .Values.postgresql.existingSecret -}}
+        {{- printf "%s" .Values.postgresql.existingSecret -}}
+    {{- else -}}
+        {{- printf "%s-%s" .Release.Name "postgresql" -}}
+    {{- end -}}
+    {{- printf "%s" .Values.postgresql.existingSecret  -}}
+{{- else if .Values.externalDatabase.existingSecret -}}
+    {{- printf "%s" .Values.externalDatabase.existingSecret -}}
+{{- else -}}
+    {{- printf "%s-externaldb" (include "beacon.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "beacon.databaseHost" -}}
+{{- if .Values.postgresql.enabled }}
+    {{- printf "%s-%s" .Release.Name "postgresql" -}}
+{{- else -}}
+    {{- printf "%s" (required "A .Values.database.host entry is required!" .Values.externalDatabase.host) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "beacon.databaseUser" -}}
+{{- if .Values.postgresql.enabled }}
+    {{- printf "%s" .Values.postgresql.postgresqlUsername -}}
+{{- else -}}
+    {{- printf "%s" (required "A .Values.database.user entry is required!" .Values.externalDatabase.user) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "beacon.databaseName" -}}
+{{- if .Values.postgresql.enabled }}
+    {{- printf "%s" .Values.postgresql.postgresqlDatabase -}}
+{{- else -}}
+    {{- printf "%s" (required "A .Values.database.name entry is required!" .Values.externalDatabase.name) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "beacon.databasePort" -}}
+{{- if .Values.postgresql.enabled }}
+    {{- printf "%d" 5432 -}}
+{{- else -}}
+    {{- printf "%s" .Values.externalDatabase.port -}}
+{{- end -}}
+{{- end -}}
