@@ -1,0 +1,130 @@
+# Annotations applied to the pod.
+# This should be a multi-line string mapping directly to the a map of
+# the annotations to apply to the service pods
+# podAnnotations: |
+  #  "key": "value"
+
+config:
+  debug: false
+  ini:
+    title: BIGPICTURE Federated Beacon node Demo at NBIS
+    beaconID: se.nbis.bigpicture.demo
+    description: BigPicture Beacon API Web Server based on the GA4GH Beacon API
+    url: https://beacon.bp.nbis.se
+    ## @param config.ini.createtime should be specified as a string 
+    ## with the format yyyy-mm-dd hh-mm-ss.
+    ## If not specified the current time is used
+    createtime: ""
+    environment: dev
+    org_id: se.nbis
+    org_name: NBIS - National Bioinformatics Infrastructure Sweden
+    org_description: NBIS is a distributed national bioinformatics infrastructure, supporting life sciences in Sweden
+    org_address: Husargatan, Uppsala, Sweden
+    org_welcomeUrl: https://www.nbis.se/
+    org_contactUrl: https://www.nbis.se/about/contact.html
+    org_logoUrl: https://nbis.se/assets/img/logos/nbislogo-green.svg
+    org_info: NBIS represents Sweden in the ELIXIR partner nodes
+  publicKey:
+    data: |-
+
+externalDatabase:
+  host: ""
+  name: ""
+  user: ""
+  password: ""
+  port: 5432
+## @param existingSecret Name of existing secret to use for database password
+## The secret has to contain the key postgresql-password 
+  existingSecret: ""
+
+image:
+  repository: cscfi/beacon-python
+  tag: latest
+  pullPolicy: IfNotPresent
+
+ingress:
+  annotations: {}
+  hostName: ""
+  className: "nginx"
+  issuer: ""
+  useTLS: false
+  secretName: ""
+
+
+## Persistent Volume Storage Class
+## If defined, storageClassName: <storageClass>
+## If set to "-", storageClassName: "", which disables dynamic provisioning
+## If undefined (the default) or set to null, no storageClassName spec is
+##   set, choosing the default provisioner.
+persistence: 
+  enabled: false
+  storageSize: 20Gi
+  storageClass: ""
+  existingClaim: ""
+
+postgresql:
+  enabled: true
+  ## @param postgresqlUsername PostgreSQL user (has superuser privileges if username is `postgres`)
+  postgresqlUsername: beacon
+  ## @param postgresqlPassword PostgreSQL user password
+  postgresqlPassword: ""
+  ## @param postgresqlPostgresPassword PostgreSQL admin password (used when `postgresqlUsername` is not `postgres`, in which case`postgres` is the admin username)
+  postgresqlPostgresPassword: ""
+  ## @param existingSecret Name of existing secret to use for PostgreSQL passwords
+  ## The secret has to contain the keys postgresql-password which is the password for postgresqlUsername when it is
+  ## different of postgres, postgresql-postgres-password which will override postgresqlPassword.
+  existingSecret: ""
+  ## @param postgresqlDatabase PostgreSQL database
+  ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#creating-a-database-on-first-run
+  postgresqlDatabase: beacondb
+
+  persistence:
+    ## @param persistence.enabled Enable persistence using PVC
+    enabled: true
+    ## @param persistence.storageClass PVC Storage Class for PostgreSQL volume
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is set,
+    ## choosing the default provisioner.
+    storageClass: ""
+    ## @param persistence.size PVC Storage Request for PostgreSQL volume
+    size: 8Gi
+
+  ## @param initdbScripts dictionary of scripts to be run at first boot
+  initdbScripts: ""
+  ## @param initdbScriptsConfigMap, ConfigMap with scripts to set up the beacon database on first boot
+  ## NOTE: This will override initdbScripts
+  initdbScriptsConfigMap: "init-cripts"
+
+  serviceAccount:
+  ## @param serviceAccount.enabled Enable service account (Note: Service Account will only be automatically created if `serviceAccount.name` is not set)
+    enabled: true
+  ## @param psp.create Whether to create a PodSecurityPolicy. WARNING: PodSecurityPolicy is deprecated in Kubernetes v1.21 or later, unavailable in v1.25 or later
+  psp:
+    create: true
+  ## @param rbac.create Create Role and RoleBinding (required for PSP to work)
+  rbac:
+    create: true
+  ## @param containerSecurityContext.enabled Enable container security context
+  ## @param containerSecurityContext.readOnlyRootFilesystem set writable fs for the container
+  containerSecurityContext:
+    enabled: true
+    readOnlyRootFilesystem: false
+
+resources:
+  requests: {}
+    # memory: "128Mi"
+    # cpu: "100m"
+  limits: {}
+    # memory: "256Mi"
+    # cpu: "250m"
+
+security:
+  createPolicy: false
+  fsGroup: 1000
+  RunAsUser: 1000
+  serviceAccountName: ""
+
+service:
+  type: ClusterIP
+  port: 8080
