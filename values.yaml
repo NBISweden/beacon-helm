@@ -39,7 +39,7 @@ externalDatabase:
 
 image:
   repository: cscfi/beacon-python
-  tag: latest
+  tag: 1.9.0
   pullPolicy: IfNotPresent
 
 ingress:
