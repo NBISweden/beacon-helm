@@ -1,0 +1,23 @@
+apiVersion: v1
+entries:
+  beacon:
+  - apiVersion: v2
+    appVersion: 1.9.0
+    created: "2022-11-15T14:32:04.361299241Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.x.x
+    description: Python-based Beacon API Web Server
+    digest: b331cdf1ee3c6fa1029cf22a5d69ac99fff7f6921ab9f6c704ca94354b2e107f
+    home: https://beacon-python.readthedocs.io
+    icon: https://nbis.se/assets/img/logos/nbislogo-green.svg
+    name: beacon
+    sources:
+    - https://github.com/NBISweden/beacon-helm
+    - https://github.com/CSCfi/beacon-python
+    urls:
+    - https://github.com/NBISweden/beacon-helm/releases/download/beacon-0.0.2/beacon-0.0.2.tgz
+    version: 0.0.2
+generated: "2022-11-15T14:32:04.361312041Z"
